@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"tgbotai/internal/config"
 	hndl "tgbotai/internal/bot"
+	"github.com/sirupsen/logrus"
 	"github.com/joho/godotenv"
 )
 
@@ -14,7 +15,7 @@ func main() {
 	
 	err := godotenv.Load()
 	if err != nil{
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	config.BOT_TOKEN = os.Getenv("BOT_TOKEN")
@@ -23,7 +24,7 @@ func main() {
 	bot, err := tgbotapi.NewBotAPI(config.BOT_TOKEN)
 	
 	if err != nil{
-		log.Fatalf("Ошибка в запуске бота")
+		logrus.Fatalf("Ошибка в запуске бота")
 	}
 
 	bot.Debug = true
@@ -43,6 +44,7 @@ func main() {
 
 			if err != nil{
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ошибка API"))
+				logrus.Warn("Ошибка в работе API")
 			}
 		}()
 	}
