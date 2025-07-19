@@ -7,7 +7,9 @@ import (
 	"tgbotai/internal/config"
 	"tgbotai/internal/models"
 	"tgbotai/internal/utils"
+
 	"github.com/go-resty/resty/v2"
+	"github.com/sirupsen/logrus"
 )
 
 func CallQWEN(prompt string) (string, error) {
@@ -26,6 +28,8 @@ func CallQWEN(prompt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	
+	logrus.Info("Ответ QWEN получен")
 
 	result := &models.Response{}
 	err = json.Unmarshal(resp.Body(), result)
@@ -36,6 +40,6 @@ func CallQWEN(prompt string) (string, error) {
 
 	res := utils.EditResult(result.Choices[0].Message.Content)
 	res = utils.RemoveThinkBlockFromAnswer(res)
-	
+	logrus.Info("Ответ преобразован")
 	return res, nil
 }
