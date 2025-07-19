@@ -35,6 +35,7 @@ func CallQWEN(prompt string) (string, error) {
 	}
 
 	res := utils.EditResult(result.Choices[0].Message.Content)
+	res = utils.RemoveThinkBlockFromAnswer(res)
 	
 	return res, nil
 }
