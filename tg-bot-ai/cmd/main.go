@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
+	"time"
+
+	hndl "tgbotai/internal/bot"
+	"tgbotai/internal/config"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"tgbotai/internal/config"
-	hndl "tgbotai/internal/bot"
-	"github.com/sirupsen/logrus"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -27,7 +30,7 @@ func main() {
 		logrus.Fatalf("Ошибка в запуске бота")
 	}
 
-	bot.Debug = true
+	//bot.Debug = true
 	log.Printf("Авторизован как %s", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -40,7 +43,10 @@ func main() {
 		}
 
 		go func ()  {
-			err := hndl.HandlerQWEN(bot, update.Message)
+			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+			defer cancel()
+
+			err := hndl.HandlerQWEN(ctx, bot, update.Message)
 
 			if err != nil{
 				bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ошибка API"))

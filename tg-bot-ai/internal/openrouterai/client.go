@@ -3,6 +3,7 @@ package openrouterai
 //Здесь логика работа с апи ИИ
 
 import (
+	"context"
 	"encoding/json"
 	"tgbotai/internal/config"
 	"tgbotai/internal/models"
@@ -12,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func CallQWEN(prompt string) (string, error) {
+func CallQWEN(ctx context.Context, prompt string, username string) (string, error) {
 	client := resty.New()
 
 	request := &models.Body{
@@ -21,8 +22,12 @@ func CallQWEN(prompt string) (string, error) {
 			{Role: "user", Content: prompt},
 		},
 	}
-
-	resp, err := client.R().SetHeader("Authorization", config.QWEN_API_TOKEN).SetHeader("Content-Type", "application/json").SetBody(request).
+	logrus.Info("Отправлен запрос от @" + username)
+	resp, err := client.R().
+		SetContext(ctx).
+		SetHeader("Authorization", config.QWEN_API_TOKEN).
+		SetHeader("Content-Type", "application/json").
+		SetBody(request).
 		Post("https://openrouter.ai/api/v1/chat/completions")
 
 	if err != nil {
@@ -41,5 +46,6 @@ func CallQWEN(prompt string) (string, error) {
 	res := utils.EditResult(result.Choices[0].Message.Content)
 	res = utils.RemoveThinkBlockFromAnswer(res)
 	logrus.Info("Ответ преобразован")
+
 	return res, nil
 }
